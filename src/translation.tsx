@@ -49,6 +49,8 @@ export function TranslationProvider({children, namespace}: {
         </TranslationContext.Provider>
     )
 }
-export function useTranslation(): { t: (key: string) => string } {
-    return useContext(TranslationContext) as any;
+export function useTranslation(namespace?: string): { t: (key: string) => string } {
+    if (!namespace)
+        return useContext(TranslationContext) as any;
+    return baseTranslation(namespace) as any;
 }
