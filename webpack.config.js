@@ -12,11 +12,18 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
-            }
+            },
+            {
+                test: /\.yaml$/,
+                use: 'yaml-loader',
+            },
         ],
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js'],
+        alias: {
+            '@': path.resolve(__dirname, 'src'),
+        }
     },
     plugins: [
         new HtmlWebpackPlugin({

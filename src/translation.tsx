@@ -1,23 +1,36 @@
 import i18next from "i18next";
-import {initReactI18next} from "react-i18next";
+import {initReactI18next, useTranslation as baseTranslation} from "react-i18next";
+import {createContext, ReactNode, useContext} from "react";
 
-const resources = {
-    pt: {
-        translation: {
-            "Welcome to React": "Bem-vindo ao React e react-i18next",
-        },
-    },
-    en: {
-        translation: {
-            "Welcome to React": "Welcome to React and react-i18next",
-        },
-    },
-};
+const translations = require.context('./pages/', true, /(pt|en)\.yaml$/);
 
-i18next
+const namespaces: string[] = [];
+translations.keys().forEach(filename => {
+   const namespace = filename.replace(/(en|pt)\.yaml$/, '');
+
+   if (!namespaces.includes(namespace)) {
+       namespaces.push(namespace);
+   }
+});
+
+const resources: Record<string, Record<string, Record<string, string>>> = {}
+translations.keys().forEach(filename => {
+    const namespace = filename.replace(/(en|pt)\.yaml$/, '');
+    const language = filename.match(/(en|pt)\.yaml$/)?.[1];
+
+    if (!language) return;
+
+    if (!resources[language]) {
+        resources[language] = {};
+    }
+    resources[language][namespace] = translations(filename).default;
+});
+
+export default i18next
     .use(initReactI18next)
     .init({
-        resources,
+        ns: namespaces,
+        resources: resources,
         lng: "pt",
         keySeparator: false,
         interpolation: {
@@ -25,4 +38,17 @@ i18next
         },
     });
 
-export default i18next;
+export const TranslationContext = createContext(null);
+export function TranslationProvider({children, namespace}: {
+    children: ReactNode;
+    namespace: string;
+}) {
+    return (
+        <TranslationContext.Provider value={baseTranslation(namespace) as any}>
+            {children}
+        </TranslationContext.Provider>
+    )
+}
+export function useTranslation(): { t: (key: string) => string } {
+    return useContext(TranslationContext) as any;
+}

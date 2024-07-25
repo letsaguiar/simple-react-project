@@ -1,6 +1,6 @@
 import {createRoot} from "react-dom/client";
 import {Router} from "./router";
-import './translation';
+import './translation'
 
 function bootstrap() {
     document.body.innerHTML = '<div id="app"></div>';
